@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Davis": {
+      "commandName": "Project",
+      "workingDirectory": "C:\\Projects\\Dotnet\\DavisRewrite"
+    }
+  }
+}

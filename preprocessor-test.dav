@@ -1,0 +1,17 @@
+#ifundef LIB_ROSEHIP
+#define LIB_ROSEHIP
+assert("good1");
+
+#endif
+
+#ifundef LIB_ROSEHIP
+
+assert("BAD");
+
+#endif
+
+#ifdef LIB_ROSEHIP
+
+assert("good2");
+
+#endif
