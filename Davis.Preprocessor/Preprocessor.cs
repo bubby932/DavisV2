@@ -19,20 +19,25 @@
 		public string Preprocess()
 		{
 			PreprocessorFirstpass();
+			PreprocessorSecondPass();
 			return _FinalSource;
+		}
+
+		private void PreprocessorFirstpass()
+		{
+
 		}
 
 		/// <summary>
 		/// Handles defines & ifs.
 		/// </summary>
-		private void PreprocessorFirstpass()
+		private void PreprocessorSecondPass()
 		{
 			int if_layer = 0;
 
 			for (int i = 0; i < _Lines.Length; i++)
 			{
 				string line = _Lines[i];
-				Console.WriteLine(line);
 				if (!line.TrimStart().StartsWith('#'))
 				{
 					_FinalSource += line + '\n';
@@ -112,11 +117,11 @@
 		/// <exception cref="PreprocessorException">Thrown if the layer becomes negative (More #endifs than #ifs)</exception>
 		private int MatchUntilLayerReturns(int line)
 		{
-			int layer = 0;
+			int layer = 1;
 			for (; line < _Lines.Length; line++)
 			{
 				string[] args = _Lines[line].TrimStart().Split(' ');
-				switch (args[0])
+				switch (args[0].TrimEnd())
 				{
 					case "#endif":
 						{

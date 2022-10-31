@@ -1,17 +1,6 @@
-#ifundef LIB_ROSEHIP
-#define LIB_ROSEHIP
-assert("good1");
+#include <stdlib>
+#include "./librosehip.dav"
 
-#endif
-
-#ifundef LIB_ROSEHIP
-
-assert("BAD");
-
-#endif
-
-#ifdef LIB_ROSEHIP
-
-assert("good2");
-
+#ifdef ROSEHIP_STDLIB
+All OK!
 #endif
