@@ -3,14 +3,17 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.3.32929.385
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Davis", "Davis\Davis.csproj", "{5575873F-7391-4D7F-8D60-B112C69A4EB8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Davis", "Davis\Davis.csproj", "{5575873F-7391-4D7F-8D60-B112C69A4EB8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Davis.Preprocessor", "Davis.Preprocessor\Davis.Preprocessor.csproj", "{43A6572E-3C22-4DB3-B015-3B95ED963DA4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Davis.Preprocessor", "Davis.Preprocessor\Davis.Preprocessor.csproj", "{43A6572E-3C22-4DB3-B015-3B95ED963DA4}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{28E3B52E-8CC3-48C9-9721-874183785894}"
 	ProjectSection(SolutionItems) = preProject
 		preprocessor-test.dav = preprocessor-test.dav
+		librosehip.dav = librosehip.dav
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Davis.StandardLibrary", "Davis.StandardLibrary\Davis.StandardLibrary.csproj", "{1DA14E93-2F69-4FAE-A815-445C9B4B56C7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -26,6 +29,10 @@ Global
 		{43A6572E-3C22-4DB3-B015-3B95ED963DA4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{43A6572E-3C22-4DB3-B015-3B95ED963DA4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{43A6572E-3C22-4DB3-B015-3B95ED963DA4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1DA14E93-2F69-4FAE-A815-445C9B4B56C7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1DA14E93-2F69-4FAE-A815-445C9B4B56C7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1DA14E93-2F69-4FAE-A815-445C9B4B56C7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1DA14E93-2F69-4FAE-A815-445C9B4B56C7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

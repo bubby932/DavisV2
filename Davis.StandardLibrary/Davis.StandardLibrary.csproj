@@ -6,8 +6,4 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\Davis.StandardLibrary\Davis.StandardLibrary.csproj" />
-  </ItemGroup>
-
 </Project>

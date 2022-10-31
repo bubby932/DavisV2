@@ -1,6 +1,6 @@
-#include <stdlib>
-#include "./librosehip.dav"
+#with $stdlib
+#with ./librosehip.dav
 
-#ifdef ROSEHIP_STDLIB
+#ifdef DAVIS_STDLIB
 All OK!
 #endif

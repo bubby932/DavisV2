@@ -1,0 +1,4 @@
+#ifundef LIB_ROSEHIP
+#define LIB_ROSEHIP
+
+#endif

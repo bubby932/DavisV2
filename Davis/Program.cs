@@ -33,7 +33,7 @@ namespace Davis
 
 			string source = preprocessor.Preprocess();
 
-			Console.WriteLine(source);
+			File.WriteAllText("test.out-dav", source);
 		}
 
 		static void Usage()

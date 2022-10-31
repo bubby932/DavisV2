@@ -1,9 +1,12 @@
-﻿namespace Davis.Preprocessor
+﻿using Davis.StandardLibrary;
+
+namespace Davis.Preprocessor
 {
 	public class DavisPreprocessor
 	{
+		public const int MAX_IMPORT_DEPTH = 50;
+
 		private readonly string _InitialSource;
-		private readonly string[] _Lines;
 
 		private string _FinalSource;
 
@@ -11,8 +14,7 @@
 		public DavisPreprocessor(string Source)
 		{
 			_InitialSource = Source;
-			_Lines = Source.Split('\n');
-			_FinalSource = "";
+			_FinalSource = Source;
 			PreprocessorDefines = new List<string>();
 		}
 
@@ -23,9 +25,59 @@
 			return _FinalSource;
 		}
 
+		/// <summary>
+		/// Handles #with statements.
+		/// </summary>
 		private void PreprocessorFirstpass()
 		{
+			_FinalSource = HandleImports(_InitialSource, 0);
+		}
 
+		private string HandleImports(string file, int current_depth)
+		{
+			current_depth++;
+
+			if (current_depth > MAX_IMPORT_DEPTH) throw new StackOverflowException("Recursive imports or otherwise too deep!");
+
+			string[] lines = file.Split('\n');
+
+			string final = "";
+
+			for (int i = 0; i < lines.Length; i++)
+			{
+				string[] args = lines[i].TrimStart().Split(' ');
+
+				switch(args[0].TrimEnd())
+				{
+					case "#with":
+						{
+							if (args.Length < 2) throw new PreprocessorException($"Too few arguments in #with statement at line {i}.");
+
+							if (args[1].StartsWith('$'))
+							{
+								if (args.Length > 2) throw new PreprocessorException($"Too many arguments in #with statement at line {i}.");
+
+								final += HandleImports(StdLib.BuiltinLibs[args[1].TrimEnd()], current_depth) + '\n';
+							}
+							else
+							{
+								string path = string.Join("", args[1..args.Length]).TrimEnd();
+								if (!File.Exists(path)) throw new PreprocessorException($"Failed to locate file '{path}'\n unwrapped: {Path.GetFullPath(path)}");
+
+								string src = File.ReadAllText(path);
+								final += HandleImports(src, current_depth) + '\n';
+							}
+							break;
+						}
+					default:
+						{
+							final += lines[i] + '\n';
+							break;
+						}
+				}
+			}
+
+			return final;
 		}
 
 		/// <summary>
@@ -35,9 +87,11 @@
 		{
 			int if_layer = 0;
 
-			for (int i = 0; i < _Lines.Length; i++)
+			string[] lines = _FinalSource.Split('\n');
+
+			for (int i = 0; i < lines.Length; i++)
 			{
-				string line = _Lines[i];
+				string line = lines[i];
 				if (!line.TrimStart().StartsWith('#'))
 				{
 					_FinalSource += line + '\n';
@@ -47,7 +101,7 @@
 				string[] args = line.Split(' ');
 
 
-				switch (args[0].TrimEnd())
+				switch (args[0].Trim())
 				{
 					case "#ifundef":
 						{
@@ -56,7 +110,7 @@
 
 							if (PreprocessorDefines.Contains(args[1]))
 							{
-								i = MatchUntilLayerReturns(i+1);
+								i = MatchUntilLayerReturns(lines, i+1);
 								break;
 							} else
 							{
@@ -72,7 +126,7 @@
 
 							if (!PreprocessorDefines.Contains(args[1]))
 							{
-								i = MatchUntilLayerReturns(i + 1);
+								i = MatchUntilLayerReturns(lines, i + 1);
 								break;
 							}
 							else
@@ -115,12 +169,12 @@
 		/// <param name="line">The line to begin matching at.</param>
 		/// <returns>The line that the system stops at.</returns>
 		/// <exception cref="PreprocessorException">Thrown if the layer becomes negative (More #endifs than #ifs)</exception>
-		private int MatchUntilLayerReturns(int line)
+		private int MatchUntilLayerReturns(string[] lines, int line)
 		{
 			int layer = 1;
-			for (; line < _Lines.Length; line++)
+			for (; line < lines.Length; line++)
 			{
-				string[] args = _Lines[line].TrimStart().Split(' ');
+				string[] args = lines[line].TrimStart().Split(' ');
 				switch (args[0].TrimEnd())
 				{
 					case "#endif":
