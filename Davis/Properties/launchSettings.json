@@ -2,7 +2,8 @@
   "profiles": {
     "Davis": {
       "commandName": "Project",
-      "workingDirectory": "C:\\Projects\\Dotnet\\DavisRewrite"
+      "commandLineArgs": "./preprocessor-test.dav out.bin",
+      "workingDirectory": "C:\\Projects\\Dotnet\\DavisRewrite\\DavisRewrite"
     }
   }
 }

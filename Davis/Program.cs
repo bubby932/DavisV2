@@ -14,7 +14,7 @@ namespace Davis
 
 			if (!File.Exists(args[0]))
 			{
-				Console.WriteLine($"[ Critical ] No file found at {args[0]}");
+				Console.WriteLine($"[ Critical ] No file found at {Path.GetFullPath(args[0])}");
 				return;
 			}
 
