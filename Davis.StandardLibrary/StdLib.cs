@@ -5,7 +5,7 @@
 		public static readonly Dictionary<string, string> BuiltinLibs = new Dictionary<string, string>()
 		{
 			{
-				"$stdlib", 
+				"$common", 
 				"#ifundef DAVIS_STDLIB\n\r" +
 				"#define DAVIS_STDLIB\n\r" +
 				"\n\r" +

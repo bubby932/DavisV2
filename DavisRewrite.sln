@@ -15,6 +15,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{28E3B52E
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Davis.StandardLibrary", "Davis.StandardLibrary\Davis.StandardLibrary.csproj", "{1DA14E93-2F69-4FAE-A815-445C9B4B56C7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Davis.Parsing", "Davis.Parser\Davis.Parsing.csproj", "{A4403E00-B366-4F6E-8AA6-39C005257221}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{1DA14E93-2F69-4FAE-A815-445C9B4B56C7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1DA14E93-2F69-4FAE-A815-445C9B4B56C7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1DA14E93-2F69-4FAE-A815-445C9B4B56C7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A4403E00-B366-4F6E-8AA6-39C005257221}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A4403E00-B366-4F6E-8AA6-39C005257221}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A4403E00-B366-4F6E-8AA6-39C005257221}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A4403E00-B366-4F6E-8AA6-39C005257221}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
