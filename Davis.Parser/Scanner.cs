@@ -4,7 +4,7 @@
 	{
 		public bool Success = true;
 
-		private static readonly Dictionary<string, TokenType> keywords = new Dictionary<string, TokenType>()
+		private static readonly Dictionary<string, TokenType> keywords = new()
 		{
 			{ "struct", TokenType.Struct },
 			{ "else", TokenType.Else },
@@ -30,71 +30,71 @@
 			this.source = source;
 		}
 
-		private bool isAtEnd() => current >= source.Length;
-		private char advance()
+		private bool IsAtEnd() => current >= source.Length;
+		private char Advance()
 		{
 			return source[current++];
 		}
-		private void addToken(TokenType type) => addToken(type, null);
-		private void addToken(TokenType type, object literal)
+		private void AddToken(TokenType type) => AddToken(type, null);
+		private void AddToken(TokenType type, object literal)
 		{
-			string text = source.Substring(start, current - start);
+			string text = source[start..current];
 			tokens.Add(new Token(type, text, literal, line));
 		}
 
-		public List<Token> scanTokens()
+		public List<Token> ScanTokens()
 		{
-			while(!isAtEnd())
+			while(!IsAtEnd())
 			{
 				start = current;
-				scanToken();
+				ScanToken();
 			}
 
 			tokens.Add(new Token(TokenType.EOF, "", null, line));
 			return tokens;
 		}
 
-		private void scanToken()
+		private void ScanToken()
 		{
-			char c = advance();
+			char c = Advance();
 			switch(c)
 			{
-				case '(': addToken(TokenType.LeftParen); break;
-				case ')': addToken(TokenType.RightParen); break;
-				case '{': addToken(TokenType.LeftBracket); break;
-				case '}': addToken(TokenType.RightBracket); break;
-				case ',': addToken(TokenType.Comma); break;
-				case '.': addToken(TokenType.Period); break;
-				case '-': addToken(TokenType.Minus); break;
-				case '+': addToken(TokenType.Plus); break;
-				case ';': addToken(TokenType.Semicolon); break;
-				case '*': addToken(TokenType.Star); break;
+				case '(': AddToken(TokenType.LeftParen); break;
+				case ')': AddToken(TokenType.RightParen); break;
+				case '{': AddToken(TokenType.LeftBracket); break;
+				case '}': AddToken(TokenType.RightBracket); break;
+				case ',': AddToken(TokenType.Comma); break;
+				case '.': AddToken(TokenType.Period); break;
+				case '-': AddToken(TokenType.Minus); break;
+				case '+': AddToken(TokenType.Plus); break;
+				case ';': AddToken(TokenType.Semicolon); break;
+				case '*': AddToken(TokenType.Star); break;
 
 				case '!':
-					addToken(match('=') ? TokenType.BangEqual : TokenType.Bang);
+					AddToken(Match('=') ? TokenType.BangEqual : TokenType.Bang);
 					break;
 				case '=':
-					addToken(match('=') ? TokenType.EqualEqual : TokenType.Equal);
+					AddToken(Match('=') ? TokenType.EqualEqual : TokenType.Equal);
 					break;
 				case '<':
-					addToken(match('=') ? TokenType.LessEqual : TokenType.Less);
+					AddToken(Match('=') ? TokenType.LessEqual : TokenType.Less);
 					break;
 				case '>':
-					addToken(match('>') ? TokenType.GreaterEqual : TokenType.Greater);
+					AddToken(Match('>') ? TokenType.GreaterEqual : TokenType.Greater);
 					break;
 				case '&':
-					addToken(match('&') ? TokenType.BooleanAnd : TokenType.BitwiseAnd);
+					AddToken(Match('&') ? TokenType.BooleanAnd : TokenType.BitwiseAnd);
 					break;
 				case '|':
-					addToken(match('|') ? TokenType.BooleanOr : TokenType.BitwiseOr);
+					AddToken(Match('|') ? TokenType.BooleanOr : TokenType.BitwiseOr);
 					break;
 				case '/':
-					if(match('/'))
+					if(Match('/'))
 					{
-						while (peek() != '\n' && !isAtEnd()) advance();
+						while (Peek() != '\n' && !IsAtEnd()) Advance();
 					} else
 					{
-						addToken(TokenType.Slash);
+						AddToken(TokenType.Slash);
 					}
 					break;
 
@@ -107,12 +107,15 @@
 					line++;
 					break;
 
-				case '"': handle_string(); break;
+				case '"': HandleString(); break;
 
 				default:
-					if(isDigit(c))
+					if(IsDigit(c))
 					{
-						handle_number();
+						HandleNumber();
+					} else if (IsAlpha(c))
+					{
+						HandleIdentifier();
 					} else
 					{
 						Console.WriteLine($"[ Syntax Error] Unexpected character {c} at {line}.");
@@ -122,79 +125,79 @@
 			}
 		}
 
-		private void handle_identifier()
+		private void HandleIdentifier()
 		{
-			while (isAlphaNumeric(peek())) advance();
+			while (IsAlphaNumeric(Peek())) Advance();
 
-			string text = source.Substring(start, current - start);
+			string text = source[start..current];
 			TokenType type = keywords.GetValueOrDefault(text, TokenType.Identifier);
 
-			addToken(type);
+			AddToken(type);
 		}
 
-		private void handle_number()
+		private void HandleNumber()
 		{
-			while (isDigit(peek())) advance();
+			while (IsDigit(Peek())) Advance();
 
-			if(peek() == '.' && isDigit(peekNext()) {
-				advance();
+			if(Peek() == '.' && IsDigit(PeekNext())) {
+				Advance();
 
-				while (isDigit(peek())) advance();
+				while (IsDigit(Peek())) Advance();
 			}
 
-			addToken(TokenType.NumericLiteral,
-				double.Parse(source.Substring(start, current - start)));
+			AddToken(TokenType.NumericLiteral,
+				double.Parse(source[start..current]));
 		}
 
-		private void handle_string()
+		private void HandleString()
 		{
-			while(peek() != '"' && !isAtEnd())
+			while(Peek() != '"' && !IsAtEnd())
 			{
-				if (peek() == '\n') line++;
-				advance();
+				if (Peek() == '\n') line++;
+				Advance();
 			}
 
-			if(isAtEnd())
+			if(IsAtEnd())
 			{
 				Success = false;
 				Console.WriteLine($"[ Syntax Error ] Unterminated string at line {line}");
 				return;
 			}
 
-			advance();
+			Advance();
 
 			string value = source.Substring(start + 1, (current - start) - 1);
-			addToken(TokenType.StringLiteral, value);
+			AddToken(TokenType.StringLiteral, value);
 		}
 		
-		private bool match(char expected)
+		private bool Match(char expected)
 		{
-			if (isAtEnd()) return false;
+			if (IsAtEnd()) return false;
 			if (source[current] != expected) return false;
 
 			current++;
 			return true;
 		}
 
-		private char peek()
+		private char Peek()
 		{
-			if (isAtEnd()) return '\0';
+			if (IsAtEnd()) return '\0';
 			return source[current];
 		}
 
-		private char peekNext()
+		private char PeekNext()
 		{
 			if (current + 1 >= source.Length) return '\0';
 			return source[current + 1];
 		}
 
-		private bool isAlpha(char c) =>
+		private static bool IsAlpha(char c) =>
 			(c >= 'a' && c <= 'z') ||
 			(c >= 'A' && c <= 'Z') ||
 			 c == '_';
 
-		private bool isAlphaNumeric(char c) => isAlpha(c) || isDigit(c);
+		private static bool IsAlphaNumeric(char c) => IsAlpha(c) || IsDigit(c);
 
-		private bool isDigit(char c) => c >= '0' && c <= '9';
+		private static bool IsDigit(char c) => c >= '0' && c <= '9';
 	}
 }
