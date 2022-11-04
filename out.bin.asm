@@ -1,7 +1,8 @@
 bits 16 ; 16 Bit Real Mode
 ; Davis function Main
-; Returns: Davis.Compilation.DavisType
+; Returns: i32
 ; Arguments:
-;   - i32
-;     Type: Davis.Compilation.DavisType
+;   - Name: int_test_param
+;     Type: i32
+;
 davis_function_Main:

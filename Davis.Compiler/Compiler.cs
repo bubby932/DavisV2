@@ -47,12 +47,16 @@
 							builder.AppendLine( "; Arguments:");
 							foreach(var item in stub.Arguments)
 							{
-								builder.AppendLine($";   - {item.Item2}");
-								builder.AppendLine($";     Type: {item.Item1}");
+								builder.AppendLine($";   - Name: {item.Item1}");
+								builder.AppendLine($";     Type: {item.Item2.Identifier}");
+								builder.AppendLine($";");
 							}
 							builder.AppendLine($"davis_function_{stub.Name}:");
 
 							_ = Consume(TokenType.LeftBracket);
+
+							_ = Consume(TokenType.RightBracket);
+							_state.UpdateContext(CodeGenContext.File, null);
 
 							break;
 						}
@@ -115,7 +119,7 @@
 
 				if (arg_names.Contains((string)param_name.literal)) throw new InvalidTokenException($"Function parameter {param_name.literal} defined twice at line {param_name.literal}");
 
-				args.Add(((string)next.literal, _state.Types[(string)next.literal]));
+				args.Add(((string)param_name.literal, _state.Types[(string)next.literal]));
 				arg_names.Add((string)next.literal);
 
 				if(Peek() != TokenType.RightParen)
