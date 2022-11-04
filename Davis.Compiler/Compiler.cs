@@ -55,8 +55,7 @@
 
 							_ = Consume(TokenType.LeftBracket);
 
-							_ = Consume(TokenType.RightBracket);
-							_state.UpdateContext(CodeGenContext.File, null);
+							throw new NotImplementedException("Finish function parsing");
 
 							break;
 						}
