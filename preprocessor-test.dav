@@ -1,3 +1,4 @@
 function i32 Main(i32 int_test_param) {
-
+	i32 init_test = 0;
+	i32 uninit_test;
 }

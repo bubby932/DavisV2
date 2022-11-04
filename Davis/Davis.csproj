@@ -8,6 +8,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Include="..\.editorconfig" Link=".editorconfig" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Davis.Compiler\Davis.Compilation.csproj" />
     <ProjectReference Include="..\Davis.Parser\Davis.Scanning.csproj" />
     <ProjectReference Include="..\Davis.Preprocessor\Davis.Preprocessor.csproj" />

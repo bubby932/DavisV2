@@ -55,14 +55,14 @@
 
 							_ = Consume(TokenType.LeftBracket);
 
-							throw new NotImplementedException("Finish function parsing");
+							_state.UpdateContext(CodeGenContext.Function, null);
 
 							break;
 						}
 					case TokenType.Struct:
 						{
 							ExpectContext(CodeGenContext.File, "Cannot declare a structure type inside a function or another struct");
-							throw new NotImplementedException();
+							throw new NotImplementedException("Structure types are not yet implemented.");
 							break;
 						}
 					case TokenType.Identifier:
@@ -73,8 +73,35 @@
 								throw new NotImplementedException();
 							} else if(_state == CodeGenContext.Function)
 							{
-								// Handle local variables
-								throw new NotImplementedException();
+								if(_state.Types.ContainsKey((string)next.literal))
+								{
+									// Creating a variable;
+
+								} else
+								{
+									bool global = _state.Globals.ContainsKey((string)next.literal);
+									bool local = ((FunctionStub)_state.Scope).LocalNames.Contains((string)next.literal);
+									// Assigning or calling a variable
+
+
+									if (!global && !local) CompileError($"Assignment to undeclared variable {(string)next.literal}");
+
+									DavisType variableType = local ?
+										((FunctionStub)_state.Scope).Locals.Where(x => x.Item1 == (string)next.literal).First().Item2 :
+										_state.Globals[(string)next.literal];
+
+									Token op = Advance();
+
+									if(op == TokenType.LeftParen)
+									{
+
+									}
+										
+
+									builder.AppendLine($"  ; Assignment to local variable '{next.literal}'");
+
+
+								}
 							} else
 							{
 								// Handle struct fields

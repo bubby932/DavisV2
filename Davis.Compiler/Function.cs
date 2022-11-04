@@ -31,7 +31,7 @@ namespace Davis.Compilation
 			Assembly = assembly;
 		}
 
-		public override bool Equals(object obj)
+		public override bool Equals(object? obj)
 		{
 			return Equals(obj as Function);
 		}
@@ -45,6 +45,13 @@ namespace Davis.Compilation
 		public DavisType ReturnType;
 		public string Name;
 		public List<(string, DavisType)> Locals = new();
+		public List<string> LocalNames = new();
+
+		public void AddLocal(string name, DavisType type)
+		{
+			Locals.Add((name, type));
+			LocalNames.Add(name);
+		}
 
 		public FunctionStub(List<(string, DavisType)> arguments, DavisType returnType, string name)
 		{

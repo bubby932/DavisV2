@@ -17,7 +17,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Davis.StandardLibrary", "Da
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Davis.Scanning", "Davis.Parser\Davis.Scanning.csproj", "{A4403E00-B366-4F6E-8AA6-39C005257221}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Davis.Compilation", "Davis.Compiler\Davis.Compilation.csproj", "{925E5C4D-DF13-4E51-B37D-C99DC6B7FD5F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Davis.Compilation", "Davis.Compiler\Davis.Compilation.csproj", "{925E5C4D-DF13-4E51-B37D-C99DC6B7FD5F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{6CB0939E-0FA3-4EB3-BEE2-363D3A25214E}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
