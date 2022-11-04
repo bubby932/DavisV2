@@ -1,6 +1,5 @@
-#with $stdlib
-#with ./librosehip.dav
+function Main() {
+	print("your mom!!!!!!");
+}
 
-#ifdef DAVIS_STDLIB
-All OK!
-#endif
+intrinsic function print(char* message);

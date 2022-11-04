@@ -1,4 +1,6 @@
-﻿using Davis.Preprocessor;
+﻿using Davis.Compilation;
+using Davis.Parsing;
+using Davis.Preprocessor;
 
 namespace Davis
 {
@@ -34,6 +36,17 @@ namespace Davis
 			string source = preprocessor.Preprocess();
 
 			File.WriteAllText("test.out-dav", source);
+
+			Scanner scanner = new(source);
+			Token[] tokens = scanner.ScanTokens().ToArray();
+
+			if (!scanner.Success) return;
+
+			Compiler compiler = new(tokens);
+
+			string assembly = compiler.Compile();
+
+			if (!compiler.Success) return;
 		}
 
 		static void Usage()

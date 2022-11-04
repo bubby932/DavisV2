@@ -43,7 +43,7 @@
 		Identifier, StringLiteral, NumericLiteral,
 
 		// Keywords
-		Struct, Else, False, Function, For, If,
+		Struct, Else, False, Function, For, If, Intrinsic,
 		Return, True, Var, While,
 
 		// no

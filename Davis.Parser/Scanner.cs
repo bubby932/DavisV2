@@ -15,7 +15,8 @@
 			{ "return", TokenType.Return },
 			{ "true", TokenType.True },
 			{ "var", TokenType.Var },
-			{ "while", TokenType.While }
+			{ "while", TokenType.While },
+			{ "__intrinsic__", TokenType.Intrinsic }
 		};
 
 		private readonly string source;
