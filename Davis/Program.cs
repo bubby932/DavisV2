@@ -1,4 +1,5 @@
-﻿using Davis.Compilation;
+﻿using System.Diagnostics;
+using Davis.Compilation;
 using Davis.Parsing;
 using Davis.Preprocessor;
 
@@ -35,8 +36,6 @@ namespace Davis
 
 			string source = preprocessor.Preprocess();
 
-			File.WriteAllText("test.out-dav", source);
-
 			Scanner scanner = new(source);
 			Token[] tokens = scanner.ScanTokens().ToArray();
 
@@ -47,6 +46,13 @@ namespace Davis
 			string assembly = compiler.Compile();
 
 			if (!compiler.Success) return;
+
+			File.WriteAllText($"{args[1]}.asm", assembly);
+
+			Process proc = Process.Start("nasm", $"{args[1]}.asm");
+
+			proc.WaitForExit();
+			Console.Write(proc.ExitCode);
 		}
 
 		static void Usage()

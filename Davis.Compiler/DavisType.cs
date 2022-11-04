@@ -8,6 +8,7 @@ namespace Davis.Compilation
 {
 	internal class DavisType
 	{
+		public bool Packed = false;
 		public string Identifier;
 		public IntrinsicType BaseType;
 		public Dictionary<string, DavisType> Fields = new();
@@ -53,7 +54,7 @@ namespace Davis.Compilation
 
 		public static readonly DavisType Char =
 			new(
-				"char"
+				"char",
 				IntrinsicType.Char,
 				new Dictionary<string, DavisType>(),
 				1

@@ -4,12 +4,12 @@
 	using Davis.Parsing;
 	public class Compiler
 	{
-		public bool Success = false;
+		public bool Success = true;
 
 		private readonly Token[] _tokens;
 
 		private int _current = 0;
-		private CodeGenState _state;
+		private readonly CodeGenState _state;
 
 
 		public Compiler(Token[] tokens)
@@ -20,14 +20,109 @@
 
 		public string Compile()
 		{
-			StringBuilder builder = new StringBuilder();
+			StringBuilder builder = new();
 
-			builder.Append("bits 16 ; 16 Bit Real Mode\n");
+			builder.AppendLine("bits 16 ; 16 Bit Real Mode");
 
 			while (!IsAtEnd())
 			{
+				Token next = Advance();
+				if (next == TokenType.EOF)
+				{
+					ExpectContext(CodeGenContext.File, $"[ Unrecoverable Compile Error ] Unexpected end of file in {_state.Context}");
+					break;
+				}
 
+				switch(next.type)
+				{
+					case TokenType.Function:
+						{
+							ExpectContext(CodeGenContext.File, "Cannot declare a function inside a struct or another function.");
+							FunctionStub stub = ParseFunctionArguments(builder);
+
+							_state.UpdateContext(CodeGenContext.Function, stub);
+
+							builder.AppendLine($"; Davis function {stub.Name}");
+							builder.AppendLine($"; Returns: {stub.ReturnType.Identifier}");
+							builder.AppendLine( "; Arguments:");
+							foreach(var item in stub.Arguments)
+							{
+								builder.AppendLine($";   - {item.Item2}");
+								builder.AppendLine($";     Type: {item.Item1}");
+							}
+							builder.AppendLine($"davis_function_{stub.Name}:");
+
+							_ = Consume(TokenType.LeftBracket);
+
+							break;
+						}
+					case TokenType.Struct:
+						{
+							ExpectContext(CodeGenContext.File, "Cannot declare a structure type inside a function or another struct");
+							throw new NotImplementedException();
+							break;
+						}
+					case TokenType.Identifier:
+						{
+							if(_state == CodeGenContext.File)
+							{
+								// Handle global variables
+								throw new NotImplementedException();
+							} else if(_state == CodeGenContext.Function)
+							{
+								// Handle local variables
+								throw new NotImplementedException();
+							} else
+							{
+								// Handle struct fields
+								throw new NotImplementedException();
+							}
+							break;
+						}
+					default: throw new NotImplementedException($"[ Compiler Error ] Unimplemented token {next}!");
+				}
 			}
+
+			return builder.ToString();
+		}
+
+		private FunctionStub ParseFunctionArguments(StringBuilder writer)
+		{
+			Token type_identifier = Consume(TokenType.Identifier);
+
+			if (!_state.Types.ContainsKey((string)type_identifier.literal)) CompileError($"Use of undefined type {type_identifier.literal}");
+
+			Token identifier = Consume(TokenType.Identifier);
+
+			if (_state.Functions.ContainsKey((string)identifier.literal)) CompileError($"Redefinition of function {identifier.literal}");
+
+			_ = Consume(TokenType.LeftParen);
+
+			List<string> arg_names = new();
+			List<(string, DavisType)> args = new();
+
+			while(!IsAtEnd())
+			{
+				Token next = Advance();
+				if (next == TokenType.EOF) throw new InvalidTokenException("Expected token ) or function argument, got EOF instead.");
+				if (next == TokenType.RightParen) break;
+
+				if (next != TokenType.Identifier) throw new InvalidTokenException($"Expected an identifier, got token {next} at line {next.line}");
+
+				if (!_state.Types.ContainsKey((string)next.literal)) CompileError($"Use of undefined type `{next.literal}` in function parameter list.");
+
+				Token param_name = Consume(TokenType.Identifier);
+
+				if (arg_names.Contains((string)param_name.literal)) throw new InvalidTokenException($"Function parameter {param_name.literal} defined twice at line {param_name.literal}");
+
+				args.Add(((string)next.literal, _state.Types[(string)next.literal]));
+				arg_names.Add((string)next.literal);
+
+				if(Peek() != TokenType.RightParen)
+					_ = Consume(TokenType.Comma);
+			}
+
+			return new FunctionStub(args, _state.Types[(string)type_identifier.literal], (string)identifier.literal);
 		}
 
 		private void ExpectContext(CodeGenContext ctx) => ExpectContext(ctx, $"Invalid context for token, expected context {ctx}");
@@ -38,7 +133,7 @@
 				throw new InvalidContextException(message);
 			}
 		}
-		
+
 		private void CompileError(string message)
 		{
 			Success = false;
@@ -55,8 +150,17 @@
 			if (IsAtEnd()) return null;
 			if (_tokens[_current].type != expected) return null;
 
-			_current++;
-			return _tokens[_current];
+			return _tokens[_current++];
+		}
+		private Token Consume(TokenType expected)
+		{
+			if (IsAtEnd())
+			{
+				throw new InvalidTokenException($"Expected token {expected}, got EOF.");
+			}
+			if (_tokens[_current].type != expected) throw new InvalidTokenException($"Expected token {expected}, got token {_tokens[_current].type}");
+
+			return _tokens[_current++];
 		}
 		private Token Peek()
 		{

@@ -8,7 +8,9 @@ namespace Davis.Compilation
 {
 	internal class CodeGenState
 	{
-		public CodeGenContext Mode = CodeGenContext.File;
+		public CodeGenContext Context = CodeGenContext.File;
+
+		public object? Scope = null;
 
 		public Dictionary<string, DavisType> Types = new()
 		{
@@ -51,10 +53,15 @@ namespace Davis.Compilation
 			return true;
 		}
 
-		public void UpdateContext(CodeGenContext ctx) => Mode = ctx;
+		public void UpdateContext(CodeGenContext ctx, object? scope)
+		{
+			Context = ctx;
+			Scope = scope;
+		}
 
-		public static implicit operator CodeGenContext(CodeGenState self) => self.Mode;
+		public static implicit operator CodeGenContext(CodeGenState self) => self.Context;
 	}
+
 
 	internal enum CodeGenContext
 	{

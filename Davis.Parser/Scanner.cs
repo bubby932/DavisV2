@@ -16,7 +16,7 @@
 			{ "true", TokenType.True },
 			{ "var", TokenType.Var },
 			{ "while", TokenType.While },
-			{ "__intrinsic__", TokenType.Intrinsic }
+			{ "packed", TokenType.Packed }
 		};
 
 		private readonly string source;
@@ -66,7 +66,6 @@
 				case '}': AddToken(TokenType.RightBracket); break;
 				case ',': AddToken(TokenType.Comma); break;
 				case '.': AddToken(TokenType.Period); break;
-				case '-': AddToken(TokenType.Minus); break;
 				case '+': AddToken(TokenType.Plus); break;
 				case ';': AddToken(TokenType.Semicolon); break;
 				case '*': AddToken(TokenType.Star); break;
@@ -88,6 +87,9 @@
 					break;
 				case '|':
 					AddToken(Match('|') ? TokenType.BooleanOr : TokenType.BitwiseOr);
+					break;
+				case '-':
+					AddToken(Match('>') ? TokenType.IndirectionArrow : TokenType.Minus);
 					break;
 				case '/':
 					if(Match('/'))
@@ -133,7 +135,7 @@
 			string text = source[start..current];
 			TokenType type = keywords.GetValueOrDefault(text, TokenType.Identifier);
 
-			AddToken(type);
+			AddToken(type, text);
 		}
 
 		private void HandleNumber()

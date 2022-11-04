@@ -9,7 +9,7 @@ namespace Davis.Compilation
 	internal class Function : IEquatable<Function>, IEquatable<string>
 	{
 		public string Name;
-		public Dictionary<string, DavisType> Arguments;
+		public List<(string, DavisType)> Arguments;
 		public string Assembly;
 
 		public bool Equals(Function? other) => Name == other?.Name;
@@ -24,7 +24,7 @@ namespace Davis.Compilation
 		public static bool operator ==(Function a, Function b) { return a.Equals(b); }
 		public static bool operator !=(Function a, Function b) { return !a.Equals(b); }
 
-		public Function(string name, Dictionary<string, DavisType> arguments, string assembly)
+		public Function(string name, List<(string, DavisType)> arguments, string assembly)
 		{
 			Name = name;
 			Arguments = arguments;
@@ -38,4 +38,20 @@ namespace Davis.Compilation
 
 		public override int GetHashCode() => Name.GetHashCode();
 	}
+
+	internal class FunctionStub
+	{
+		public List<(string, DavisType)> Arguments;
+		public DavisType ReturnType;
+		public string Name;
+		public List<(string, DavisType)> Locals = new();
+
+		public FunctionStub(List<(string, DavisType)> arguments, DavisType returnType, string name)
+		{
+			Arguments = arguments;
+			ReturnType = returnType;
+			Name = name;
+		}
+	}
+
 }

@@ -94,7 +94,6 @@ namespace Davis.Preprocessor
 				string line = lines[i];
 				if (!line.TrimStart().StartsWith('#'))
 				{
-					_FinalSource += line + '\n';
 					continue;
 				}
 

@@ -19,6 +19,8 @@
 			this.line = line;
 		}
 
+		public static implicit operator TokenType(Token t) => t.type;
+
 		public override string ToString()
 		{
 			return $"{type} {lexeme} {literal}";
@@ -29,7 +31,7 @@
 	{
 		// Individual Characters
 		LeftParen, RightParen, LeftBracket, RightBracket,
-		Comma, Period, Minus, Plus, Semicolon, Slash, Star,
+		Comma, Period, Plus, Semicolon, Slash, Star,
 
 		// Potentially multi-character tokens
 		Bang, BangEqual,
@@ -38,13 +40,14 @@
 		Less, LessEqual,
 		BitwiseAnd, BooleanAnd,
 		BitwiseOr, BooleanOr,
+		Minus, IndirectionArrow,
 
 		// Literals
 		Identifier, StringLiteral, NumericLiteral,
 
 		// Keywords
-		Struct, Else, False, Function, For, If, Intrinsic,
-		Return, True, Var, While,
+		Struct, Else, False, Function, For, If,
+		Return, True, Var, While, Packed,
 
 		// no
 		EOF
