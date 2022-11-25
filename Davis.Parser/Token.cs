@@ -20,6 +20,7 @@
 		}
 
 		public static implicit operator TokenType(Token t) => t.type;
+		public static implicit operator string(Token t) => (string)t.literal;
 
 		public override string ToString()
 		{
@@ -47,7 +48,8 @@
 
 		// Keywords
 		Struct, Else, False, Function, For, If,
-		Return, True, Var, While, Packed,
+		Return, True, Var, While, Packed, Pretend, Is,
+		EntryPoint,
 
 		// no
 		EOF

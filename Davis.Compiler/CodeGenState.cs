@@ -11,11 +11,15 @@ namespace Davis.Compilation
 		public CodeGenContext Context = CodeGenContext.File;
 
 		public object? Scope = null;
+		public string? EntryPoint = null;
+
+		public int LocalOffset = 0;
+		public Dictionary<string, (int, Variable)> Locals = new();
+		public bool EmittedReturnInstruction = false;
 
 		public Dictionary<string, DavisType> Types = new()
 		{
-			{ "i32", DavisType.I32 },
-			{ "f32", DavisType.F32 },
+			{ "i8", DavisType.I8 },
 			{ "char", DavisType.Char }
 		};
 
@@ -57,6 +61,12 @@ namespace Davis.Compilation
 		{
 			Context = ctx;
 			Scope = scope;
+		}
+
+		public void SetEntryPoint(string name)
+		{
+			if (EntryPoint != null) throw new Exception("Entry point already defined!");
+			EntryPoint = name;
 		}
 
 		public static implicit operator CodeGenContext(CodeGenState self) => self.Context;

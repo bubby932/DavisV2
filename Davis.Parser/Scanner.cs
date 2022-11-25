@@ -16,7 +16,10 @@
 			{ "true", TokenType.True },
 			{ "var", TokenType.Var },
 			{ "while", TokenType.While },
-			{ "packed", TokenType.Packed }
+			{ "packed", TokenType.Packed },
+			{ "pretend", TokenType.Pretend },
+			{ "is", TokenType.Is },
+			{ "entrypoint", TokenType.EntryPoint }
 		};
 
 		private readonly string source;
@@ -169,7 +172,7 @@
 
 			Advance();
 
-			string value = source.Substring(start + 1, (current - start) - 1);
+			string value = source[(start+1)..(current-1)];
 			AddToken(TokenType.StringLiteral, value);
 		}
 		

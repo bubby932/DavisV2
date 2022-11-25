@@ -1,3 +1,17 @@
-function i32 Main(i32 int_test_param) {
+#ifundef DAVIS_MAIN
+#define DAVIS_MAIN
 
+struct packed i16 {
+	i8 low;
+	i8 high;
 }
+
+entrypoint function i8 Main() {
+	i8 one;
+	pretend one is i16;
+	! "
+  ; inline assembly
+	";
+}
+
+#endif

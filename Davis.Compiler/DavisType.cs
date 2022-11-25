@@ -11,10 +11,10 @@ namespace Davis.Compilation
 		public bool Packed = false;
 		public string Identifier;
 		public IntrinsicType BaseType;
-		public Dictionary<string, DavisType> Fields = new();
+		public Dictionary<string, StructField> Fields = new();
 		public int Size;
 
-		public DavisType(string identifier, IntrinsicType baseType, Dictionary<string, DavisType> fields, int size)
+		public DavisType(string identifier, IntrinsicType baseType, Dictionary<string, StructField> fields, int size)
 		{
 			Identifier = identifier;
 			BaseType = baseType;
@@ -22,49 +22,26 @@ namespace Davis.Compilation
 			Size = size;
 		}
 
-		public DavisType(string identifier, IntrinsicType baseType, Dictionary<string, DavisType> fields)
-		{
-			Identifier = identifier;
-			BaseType = baseType;
-			Fields = fields;
-
-			Size = 0;
-
-			foreach (var item in fields)
-			{
-				Size += item.Value.Size;
-			}
-		}
-
-		public static readonly DavisType I32 = 
+		public static readonly DavisType I8 = 
 			new(
-				"i32",
-				IntrinsicType.I32,
-				new Dictionary<string, DavisType>(),
-				4
-			);
-
-		public static readonly DavisType F32 =
-			new(
-				"f32",
-				IntrinsicType.F32,
-				new Dictionary<string, DavisType>(),
-				4
+				"i8",
+				IntrinsicType.I8,
+				new(),
+				1
 			);
 
 		public static readonly DavisType Char =
 			new(
 				"char",
 				IntrinsicType.Char,
-				new Dictionary<string, DavisType>(),
+				new(),
 				1
 			);
 	}
 
 	internal enum IntrinsicType
 	{ 
-		I32,
-		F32,
+		I8,
 		Char,
 		Structure
 	}

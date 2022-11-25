@@ -22,7 +22,8 @@ namespace Davis.Preprocessor
 		{
 			PreprocessorFirstpass();
 			PreprocessorSecondPass();
-			return _FinalSource;
+
+			return string.Join('\n', _FinalSource.Split('\n').Where(x => !x.StartsWith('#')));
 		}
 
 		/// <summary>
@@ -87,9 +88,9 @@ namespace Davis.Preprocessor
 		{
 			int if_layer = 0;
 
-			string[] lines = _FinalSource.Split('\n');
+			List<string> lines = _FinalSource.Split('\n').ToList();
 
-			for (int i = 0; i < lines.Length; i++)
+			for (int i = 0; i < lines.Count; i++)
 			{
 				string line = lines[i];
 				if (!line.TrimStart().StartsWith('#'))
@@ -168,10 +169,10 @@ namespace Davis.Preprocessor
 		/// <param name="line">The line to begin matching at.</param>
 		/// <returns>The line that the system stops at.</returns>
 		/// <exception cref="PreprocessorException">Thrown if the layer becomes negative (More #endifs than #ifs)</exception>
-		private int MatchUntilLayerReturns(string[] lines, int line)
+		private int MatchUntilLayerReturns(List<string> lines, int line)
 		{
 			int layer = 1;
-			for (; line < lines.Length; line++)
+			for (; line < lines.Count; line++)
 			{
 				string[] args = lines[line].TrimStart().Split(' ');
 				switch (args[0].TrimEnd())

@@ -35,88 +35,140 @@
 
 				switch(next.type)
 				{
+					case TokenType.EntryPoint:
+						{
+							Consume(TokenType.Function);
+							FunctionStub f = Function(builder);
+							if (f.ReturnType != DavisType.I8) throw new Exception("Entry point must return `i8`.");
+							if (f.Arguments.Count > 0) throw new Exception("Entry point may not have any arguments.");
+
+							_state.SetEntryPoint(f.Name);
+							break;
+						}
 					case TokenType.Function:
 						{
-							ExpectContext(CodeGenContext.File, "Cannot declare a function inside a struct or another function.");
-							FunctionStub stub = ParseFunctionArguments(builder);
-
-							_state.UpdateContext(CodeGenContext.Function, stub);
-
-							builder.AppendLine($"; Davis function {stub.Name}");
-							builder.AppendLine($"; Returns: {stub.ReturnType.Identifier}");
-							builder.AppendLine( "; Arguments:");
-							foreach(var item in stub.Arguments)
-							{
-								builder.AppendLine($";   - Name: {item.Item1}");
-								builder.AppendLine($";     Type: {item.Item2.Identifier}");
-								builder.AppendLine($";");
-							}
-							builder.AppendLine($"davis_function_{stub.Name}:");
-
-							_ = Consume(TokenType.LeftBracket);
-
-							_state.UpdateContext(CodeGenContext.Function, null);
-
+							Function(builder);
 							break;
 						}
 					case TokenType.Struct:
 						{
-							ExpectContext(CodeGenContext.File, "Cannot declare a structure type inside a function or another struct");
-							throw new NotImplementedException("Structure types are not yet implemented.");
-							break;
-						}
-					case TokenType.Identifier:
-						{
-							if(_state == CodeGenContext.File)
+							ExpectContext(CodeGenContext.File);
+
+							bool packed = Match(TokenType.Packed) != null;
+							
+							Token struct_name = Consume(TokenType.Identifier);
+							if (_state.Types.ContainsKey(struct_name)) throw new Exception($"Structure type {struct_name.literal} is already defined.");
+
+							Dictionary<string, StructField> fields = new();
+							int size = 0;
+
+							Consume(TokenType.LeftBracket);
+
+							builder.AppendLine(packed ? $"; Struct `{struct_name.literal}` (Packed)" : $"; Struct `{struct_name.literal}`");
+							builder.AppendLine("; Fields:");
+
+							while(Match(TokenType.RightBracket) == null)
 							{
-								// Handle global variables
-								throw new NotImplementedException();
-							} else if(_state == CodeGenContext.Function)
-							{
-								if(_state.Types.ContainsKey((string)next.literal))
+								Token type = Consume(TokenType.Identifier);
+								Token field_name = Consume(TokenType.Identifier);
+								Consume(TokenType.Semicolon);
+
+								DavisType t;
+								if (!_state.Types.TryGetValue(type, out t))
 								{
-									// Creating a variable;
-
-								} else
-								{
-									bool global = _state.Globals.ContainsKey((string)next.literal);
-									bool local = ((FunctionStub)_state.Scope).LocalNames.Contains((string)next.literal);
-									// Assigning or calling a variable
-
-
-									if (!global && !local) CompileError($"Assignment to undeclared variable {(string)next.literal}");
-
-									DavisType variableType = local ?
-										((FunctionStub)_state.Scope).Locals.Where(x => x.Item1 == (string)next.literal).First().Item2 :
-										_state.Globals[(string)next.literal];
-
-									Token op = Advance();
-
-									if(op == TokenType.LeftParen)
-									{
-
-									}
-										
-
-									builder.AppendLine($"  ; Assignment to local variable '{next.literal}'");
-
-
+									throw new Exception($"Cannot use type {t} in structure when it is not defined.");
 								}
-							} else
-							{
-								// Handle struct fields
-								throw new NotImplementedException();
+
+								StructField field = new StructField(
+									t,
+									field_name,
+									packed ? t.Size : Pad(t.Size),
+									size
+								);
+
+								fields.Add(field_name, field);
+								size += field.size;
+
+								builder.AppendLine($"; - Name: {field_name.literal}");
+								builder.AppendLine($";   Type: {t.Identifier}");
+								builder.AppendLine($";   Size: {t.Size}");
+								builder.AppendLine($";");
 							}
+
+							builder.AppendLine($"; Total Size: {size}");
+							builder.AppendLine();
+
+							DavisType @struct = new DavisType(struct_name, IntrinsicType.Structure, fields, size);
+							_state.Types.Add(@struct.Identifier, @struct);
+
 							break;
 						}
 					default: throw new NotImplementedException($"[ Compiler Error ] Unimplemented token {next}!");
 				}
 			}
 
+			if (_state.EntryPoint == null) throw new Exception("No entry point defined.");
+
+			builder.Insert(26, $"\ncall davis_function_{_state.EntryPoint}\n");
+
 			return builder.ToString();
 		}
 
-		private FunctionStub ParseFunctionArguments(StringBuilder writer)
+		private FunctionStub Function(StringBuilder builder)
+		{
+			ExpectContext(CodeGenContext.File, "Cannot declare a function inside a struct or another function.");
+			FunctionStub stub = ParseFunctionArguments();
+			_state.EmittedReturnInstruction = false;
+
+			_state.UpdateContext(CodeGenContext.Function, stub);
+
+			builder.AppendLine($"; Davis function {stub.Name}");
+			builder.AppendLine($"; Returns: {stub.ReturnType.Identifier}");
+			builder.AppendLine("; Arguments:");
+			foreach (var item in stub.Arguments)
+			{
+				builder.AppendLine($";   - Name: {item.Item1}");
+				builder.AppendLine($";     Type: {item.Item2.Identifier}");
+				builder.AppendLine($";");
+			}
+			builder.AppendLine($"davis_function_{stub.Name}:");
+
+			_ = Consume(TokenType.LeftBracket);
+
+			_state.UpdateContext(CodeGenContext.Function, null);
+			_state.Locals = new();
+			_state.LocalOffset = 0;
+
+
+			while(Match(TokenType.RightBracket) == null)
+			{
+				Statement(builder);
+			}
+
+			builder.AppendLine($"  ; Stack cleanup.");
+			builder.AppendLine($"  add sp, {-_state.LocalOffset}");
+			if(!_state.EmittedReturnInstruction)
+			{
+				builder.AppendLine($"  ; Implicit return from function at end due to no 'return' keyword.");
+				builder.AppendLine($"  ret");
+			}
+
+			builder.AppendLine($"; End of Davis function {stub.Name}");
+
+
+			_state.UpdateContext(CodeGenContext.File, null);
+
+			return stub;
+		}
+
+		private const int FIELD_ALIGNMENT = 2;
+		private static int Pad(int size)
+		{
+			int hasRemainder = (size % FIELD_ALIGNMENT) > 0 ? 1 : 0;
+			return ((size / FIELD_ALIGNMENT) + hasRemainder) * FIELD_ALIGNMENT;
+		}
+
+		private FunctionStub ParseFunctionArguments()
 		{
 			Token type_identifier = Consume(TokenType.Identifier);
 
@@ -153,6 +205,87 @@
 			}
 
 			return new FunctionStub(args, _state.Types[(string)type_identifier.literal], (string)identifier.literal);
+		}
+
+		private void Statement(StringBuilder _builder)
+		{
+			Token adv = Advance();
+			switch(adv.type)
+			{
+				case TokenType.Pretend:
+					{
+						Token name = Consume(TokenType.Identifier);
+						_ = Consume(TokenType.Is);
+						Token type = Consume(TokenType.Identifier);
+						_ = Consume(TokenType.Semicolon);
+
+						if (!_state.Locals.ContainsKey((string)name.literal)) throw new Exception($"Cannot change type of undeclared variable {name.literal}");
+						if (!_state.Types.ContainsKey((string)type.literal)) throw new Exception($"No type of name {type.literal} exists in this context.");
+
+						_state.Locals[(string)name.literal].Item2.Type = _state.Types[(string)type.literal];
+
+						_builder.AppendLine($"  ; pretend {name.literal} is {type.literal};");
+						_builder.AppendLine($"  ; ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
+						_builder.AppendLine($"  ;    Explicit unsafe cast occurred here.");
+						break;
+					}
+				case TokenType.Bang:
+					{
+						// TODO implement formatting for variables etc
+						Token asm = Consume(TokenType.StringLiteral);
+						_builder.AppendLine("  ; Begin inline assembly.");
+						_builder.AppendLine((string)asm.literal);
+						_builder.AppendLine("  ; End inline assembly.");
+						Consume(TokenType.Semicolon);
+						break;
+					}
+				case TokenType.Identifier:
+					{
+						if(Peek().type == TokenType.Identifier)
+						{
+							// Variable
+							DavisType T = _state.Types[(string)adv.literal];
+							string name = (string)Advance().literal;
+
+							if (Match(TokenType.Semicolon) != null)
+							{
+								_state.Locals.Add(name, (_state.LocalOffset, new Variable(name, T)));
+								_state.LocalOffset -= Pad(T.Size);
+								_builder.AppendLine($"  ; Variable `{T.Identifier} {name}` declared here, not assigned a value.");
+								_builder.AppendLine($"  sub sp, {Pad(T.Size)}");
+							}
+							else throw new NotImplementedException();
+						} else
+						{
+							throw new NotImplementedException(); // oh god expressions
+						}
+						break;
+					}
+				case TokenType.EOF:
+					{
+						throw new NotSupportedException();
+					}
+			}
+		}
+
+		private DavisType Expression(StringBuilder _builder)
+		{
+
+			throw new NotImplementedException();
+		}
+
+		private (string, DavisType) AssignmentTarget(Token root)
+		{
+			throw new NotImplementedException();
+			StringBuilder b = new();
+
+			if(Match(TokenType.Equal) == null)
+			{
+
+			} else
+			{
+
+			}
 		}
 
 		private void ExpectContext(CodeGenContext ctx) => ExpectContext(ctx, $"Invalid context for token, expected context {ctx}");
